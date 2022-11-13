@@ -71,7 +71,7 @@ async function runAllTasks(
     'command-execution-begins',
     'task-graph-created'
   );
-
+  
   const orchestrator = new TaskOrchestrator(
     context.hasher,
     context.initiatingProject,

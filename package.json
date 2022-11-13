@@ -1,5 +1,5 @@
 {
-  "name": "custom-cache-task-runner",
+  "name": "@darkterror45/custom-cache-task-runner",
   "version": "1.0.0",
   "description": "An nx task runner that caches all outputs to a given leveldown configuration",
   "main": "dist/index.js",
@@ -8,7 +8,7 @@
   },
   "author": "Darkterror45",
   "repository": {
-    "url": ""
+    "url": "https://github.com/Darkterror45/custom-nx-cache"
   },
   "license": "MIT",
   "dependencies": {
@@ -22,5 +22,10 @@
   "devDependencies": {
     "@types/levelup": "^5.1.2",
     "@types/lodash": "^4.14.176"
-  }
+  },
+  "keywords": [
+    "nx",
+    "cache",
+    "task"
+  ]
 }

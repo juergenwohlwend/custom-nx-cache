@@ -18,12 +18,12 @@ Install this package and [some leveldown driver](https://www.npmjs.com/browse/de
 
 Yarn:
 ```
-yarn add @smallstack/cached-task-runner redisdown --dev
+yarn add @darkterror45/custom-cache-task-runner redisdown --dev
 ```
 
 NPM:
 ```
-npm install @smallstack/cached-task-runner redisdown --dev
+npm install @darkterror45/custom-cache-task-runner redisdown --dev
 ```
 
 ## Okay, how do I use it?
@@ -33,7 +33,7 @@ In your `nx.json` file, add the following right after `implicitDependencies`:
 ```
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@smallstack/cached-task-runner",
+      "runner": "@darkterror45/custom-cache-task-runner",
       "options": {
         "cacheableOperations": ["build", "test", "lint"],
         "levelTaskRunnerOptions": {
@@ -59,7 +59,7 @@ in node_redis is `password`, so:
 ```
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@smallstack/cached-task-runner",
+      "runner": "@darkterror45/custom-cache-task-runner",
       "options": {
         "cacheableOperations": ["build", "test", "lint"],
         "levelTaskRunnerOptions": {
@@ -68,6 +68,28 @@ in node_redis is `password`, so:
           "host": "10.11.12.13",
           "port": 6379,
           "password": "hunter2"
+        }
+      }
+    }
+  },
+```
+
+## What if I need to debug ?
+
+Just add the "debug" parameter to the levelTaskRunnerOptions.
+
+```
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@darkterror45/custom-cache-task-runner",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint"],
+        "levelTaskRunnerOptions": {
+          "driver": "redisdown",
+          "name": "my-build-cache",
+          "host": "10.11.12.13",
+          "port": 6379,
+          "debug": true
         }
       }
     }

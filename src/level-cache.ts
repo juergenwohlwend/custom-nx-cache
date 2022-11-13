@@ -9,12 +9,14 @@ export interface ILevelCacheOptions {
   driver?: string;
   name?: string;
   time_to_live?: number;
+  debug?: boolean;
 }
 
 const cacheOptionsEnvKeyPrefix = "level_task_runner_";
 const cacheOptionsEnvKeyDriver = "driver";
 const cacheOptionsEnvKeyName = "name";
 const cacheOptionsEnvKeyTimeToLive = "time_to_live";
+const cacheOptionsDebug = "debug";
 
 export class LevelCache implements RemoteCache {
   private options: ILevelCacheOptions;
@@ -27,11 +29,13 @@ export class LevelCache implements RemoteCache {
       [cacheOptionsEnvKeyDriver]: this.driverOptions[cacheOptionsEnvKeyDriver],
       [cacheOptionsEnvKeyName]: this.driverOptions[cacheOptionsEnvKeyName],
       [cacheOptionsEnvKeyTimeToLive]: this.driverOptions[cacheOptionsEnvKeyTimeToLive],
+      [cacheOptionsDebug]: this.driverOptions[cacheOptionsDebug],
     };
 
     delete this.driverOptions[cacheOptionsEnvKeyDriver];
     delete this.driverOptions[cacheOptionsEnvKeyName];
     delete this.driverOptions[cacheOptionsEnvKeyTimeToLive];
+    delete this.driverOptions[cacheOptionsDebug];
   }
 
   async retrieve(hash: string, cacheDirectory: string): Promise<boolean> {
@@ -44,37 +48,35 @@ export class LevelCache implements RemoteCache {
 
     return new Promise((resolve, reject) => {
       try {
-        console.log("cache-task-runner: Retrieving cache for ", hash);
+        debug(this.options.debug, LogType.log,"cache-task-runner: Retrieving cache for ", hash);
         db.get(hash, async (err, value) => {
           if (err) {
-            console.error("cache-task-runner: Error while retrieving cache item ", err);
+            debug(this.options.debug, LogType.error,"cache-task-runner: Error while retrieving cache item ", err);
             resolve(false);
           } else {
             try {
-              console.log("cache-task-runner: stored value", value, cacheDirectory)
-
-              fs.writeFileSync(path.join(cacheDirectory, `test.b64`), value);
+              debug(this.options.debug, LogType.log,"cache-task-runner: stored value", value, cacheDirectory)
 
               await this.unarchiveIntoDir(value, cacheDirectory);
               fs.writeFileSync(path.join(cacheDirectory, `${hash}.commit`), "true");
               
            
-              console.log("cache-task-runner: Retrieved cache for ", hash);
+              debug(this.options.debug, LogType.log,"cache-task-runner: Retrieved cache for ", hash);
               resolve(true);
             } catch (e) {
-              console.error("cache-task-runner: Error while retrieving cache item ", e);
+              debug(this.options.debug, LogType.error,"cache-task-runner: Error while retrieving cache item ", e);
               resolve(false);
             }
           }
 
           db.close((err) => {
             if (err) {
-              console.error("cache-task-runner: Error while closing db after retrieving cache item ", err);
+              debug(this.options.debug, LogType.error,"cache-task-runner: Error while closing db after retrieving cache item ", err);
             }
           });
         });
       } catch (e) {
-        console.error("cache-task-runner: Error while retrieving cache item ", e);
+        debug(this.options.debug, LogType.error,"cache-task-runner: Error while retrieving cache item ", e);
         resolve(false);
       }
     });
@@ -91,16 +93,16 @@ export class LevelCache implements RemoteCache {
     try {
       const buffer = await this.archiveFromDir(hash, cacheDirectory);
 
-      console.log(`cache-task-runner: Zipped directory ${cacheDirectory} with hash ${hash}`);
+      debug(this.options.debug, LogType.log,`cache-task-runner: Zipped directory ${cacheDirectory} with hash ${hash}`);
 
       return new Promise((resolve, reject) => {
         try {
           db.put(hash, buffer, async (err) => {
             if (err) {
-              console.error("cache-task-runner: Error while storing cache item ", err);
+              debug(this.options.debug, LogType.error,"cache-task-runner: Error while storing cache item ", err);
               resolve(false);
             } else {
-              console.log("cache-task-runner: Storing Item with hash ", hash);
+              debug(this.options.debug, LogType.log,"cache-task-runner: Storing Item with hash ", hash);
               resolve(true);
             }
 
@@ -109,26 +111,26 @@ export class LevelCache implements RemoteCache {
               leveldownInstance.db.expire(hash, this.options.time_to_live, async (expireErr) => {
                 db.close((err) => {
                   if (err) {
-                    console.error("level-cache-task-runner: Error while closing db after storing cache item ", err);
+                    debug(this.options.debug, LogType.error,"cache-task-runner: Error while closing db after storing cache item ", err);
                   }
                 });
               });
             } else {
               db.close((err) => {
                 if (err) {
-                  console.error("level-cache-task-runner: Error while closing db after storing cache item ", err);
+                  debug(this.options.debug, LogType.error,"cache-task-runner: Error while closing db after storing cache item ", err);
                 }
               });
             }
             
           });
         } catch (e) {
-          console.error("cache-task-runner: Error while storing cache item ", e);
+          debug(this.options.debug, LogType.error,"cache-task-runner: Error while storing cache item ", e);
           resolve(false);
         }
       });
     } catch (e) {
-      console.error("cache-task-runner: Error while storing cache item ", e);
+      debug(this.options.debug, LogType.error,"cache-task-runner: Error while storing cache item ", e);
       return Promise.resolve(false);
     }
   }
@@ -150,7 +152,7 @@ export class LevelCache implements RemoteCache {
         ? { db: new levelUp(leveldownInstance, this.driverOptions as any), leveldownInstance: leveldownInstance }
         : null;
     } catch (e) {
-      console.error("cache-task-runner: Error while creating level db ", e);
+      debug(this.options.debug, LogType.error,"cache-task-runner: Error while creating level db ", e);
     }
   }
 
@@ -197,5 +199,23 @@ export class LevelCache implements RemoteCache {
       return null;
     }
   }
+}
 
+enum LogType{
+  error, 
+  log
+}
+
+function debug(debug ,type: LogType, message?: any, ...optionalParams: any[]) {
+  if ( debug ) {
+    switch (type) {
+      case LogType.log:
+        console.log(message, optionalParams)
+        break;
+    
+      case LogType.error:
+        console.error(message, optionalParams)
+        break;
+    }
+  }
 }

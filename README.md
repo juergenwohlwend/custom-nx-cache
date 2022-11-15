@@ -96,6 +96,27 @@ Just add the "debug" parameter to the levelTaskRunnerOptions.
   },
 ```
 
+## s3leveldown
+
+```
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@darkterror45/custom-cache-task-runner",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint"],
+        "levelTaskRunnerOptions": {
+          "driver": "@apployees-nx/s3leveldown",
+          "name": "10.11.12.13",
+          "apiVersion": "2006-03-01",
+          "accessKeyId": "YOUR-ACCESSKEYID",
+          "secretAccessKey": "YOUR-SECRETACCESSKEY",
+          "endpoint": "http://10.11.12.13:9000/cache",
+        }
+      }
+    }
+  },
+```
+
 ## But I have different options for dev. env. than Jenkins/GithubActions/Gitlab/CICD_Pipeline...
 
 No problem! Anything that you can supply in `levelTaskRunnerOptions` in `nx.json`, you can also supply as

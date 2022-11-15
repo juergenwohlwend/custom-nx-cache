@@ -1,4 +1,4 @@
-import { archive, extract } from "simple-archiver";
+import { archive, extract } from "./archive";
 import { clone, isFunction } from "lodash";
 import { RemoteCache } from "@nrwl/workspace/src/tasks-runner/tasks-runner-v2";
 import fs from "fs";

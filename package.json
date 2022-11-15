@@ -1,15 +1,23 @@
 {
   "name": "@darkterror45/custom-cache-task-runner",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An nx task runner that caches all outputs to a given leveldown configuration",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --outDir dist"
+    "clean": "rm -rf dist/",
+    "build": "npm run clean && tsc"
+  },
+  "engines": {
+    "node": ">=16"
   },
   "author": "Darkterror45",
   "repository": {
-    "url": "https://github.com/Darkterror45/custom-nx-cache"
+    "type": "git",
+    "url": "https://github.com/Darkterror45/custom-nx-cache.git"
   },
+  "files": [
+    "dist/**/*"
+ ],
   "license": "MIT",
   "dependencies": {
     "@nrwl/devkit": "^15.0.13",

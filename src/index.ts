@@ -5,12 +5,16 @@ import { ProjectGraph } from "@nrwl/devkit";
 import { TaskOrchestrator } from "nx/src/tasks-runner/task-orchestrator";
 import { DaemonClient } from "nx/src/daemon/client/client";
 import { NxArgs } from "nx/src/utils/command-line-utils";
-import { TasksRunner, TaskStatus } from "@nrwl/workspace/src/tasks-runner/tasks-runner";
-import { DefaultTasksRunnerOptions } from "@nrwl/workspace/src/tasks-runner/tasks-runner-v2";
+import {
+  TasksRunner,
+  TaskStatus,
+} from "@nx/workspace/src/tasks-runner/tasks-runner";
+import { DefaultTasksRunnerOptions } from "@nx/devkit";
 import { LevelCache } from "./level-cache";
 
-
-export const defaultTasksRunner: TasksRunner<DefaultTasksRunnerOptions> = async(
+export const defaultTasksRunner: TasksRunner<
+  DefaultTasksRunnerOptions
+> = async (
   tasks: Task[],
   options: DefaultTasksRunnerOptions & { levelTaskRunnerOptions: any },
   context: {
@@ -24,20 +28,19 @@ export const defaultTasksRunner: TasksRunner<DefaultTasksRunnerOptions> = async(
     daemon: DaemonClient;
   }
 ): Promise<{ [id: string]: TaskStatus }> => {
-
   options.remoteCache = new LevelCache(options.levelTaskRunnerOptions || {});
 
   if (
-    (options as any)['parallel'] === 'false' ||
-    (options as any)['parallel'] === false
+    (options as any)["parallel"] === "false" ||
+    (options as any)["parallel"] === false
   ) {
-    (options as any)['parallel'] = 1;
+    (options as any)["parallel"] = 1;
   } else if (
-    (options as any)['parallel'] === 'true' ||
-    (options as any)['parallel'] === true ||
-    (options as any)['parallel'] === undefined
+    (options as any)["parallel"] === "true" ||
+    (options as any)["parallel"] === true ||
+    (options as any)["parallel"] === undefined
   ) {
-    (options as any)['parallel'] = Number((options as any)['maxParallel'] || 3);
+    (options as any)["parallel"] = Number((options as any)["maxParallel"] || 3);
   }
 
   options.lifeCycle.startCommand();
@@ -46,7 +49,6 @@ export const defaultTasksRunner: TasksRunner<DefaultTasksRunnerOptions> = async(
   } finally {
     options.lifeCycle.endCommand();
   }
-
 };
 
 async function runAllTasks(
@@ -62,16 +64,15 @@ async function runAllTasks(
     daemon: DaemonClient;
   }
 ): Promise<{ [id: string]: TaskStatus }> {
+  performance.mark("task-graph-created");
 
-  performance.mark('task-graph-created');
-
-  performance.measure('nx-prep-work', 'init-local', 'task-graph-created');
+  performance.measure("nx-prep-work", "init-local", "task-graph-created");
   performance.measure(
-    'graph-creation',
-    'command-execution-begins',
-    'task-graph-created'
+    "graph-creation",
+    "command-execution-begins",
+    "task-graph-created"
   );
-  
+
   const orchestrator = new TaskOrchestrator(
     context.hasher,
     context.initiatingProject,

@@ -1,13 +1,9 @@
-import { clone, isFunction } from "lodash";
-import { RemoteCache } from "@nx/devkit";
-import fs from "fs";
-import levelUp, { LevelUp } from "levelup";
-import path from "path";
-import tar from "tar";
-import util from "util";
-import stream from "stream";
+import { RemoteCache } from '@nx/devkit';
+import fs from 'fs';
+import levelUp, { LevelUp } from 'levelup';
+import path from 'path';
 
-import { unarchiveIntoDir, archiveFromDir } from "./archive";
+import { unarchiveIntoDir, archiveFromDir } from './archive';
 
 export interface LevelCacheOptions {
   driver?: string;
@@ -16,11 +12,11 @@ export interface LevelCacheOptions {
   debug?: boolean;
 }
 
-const cacheOptionsEnvKeyPrefix = "level_task_runner_";
-const cacheOptionsEnvKeyDriver = "driver";
-const cacheOptionsEnvKeyName = "name";
-const cacheOptionsEnvKeyTimeToLive = "time_to_live";
-const cacheOptionsDebug = "debug";
+const cacheOptionsEnvKeyPrefix = 'level_task_runner_';
+const cacheOptionsEnvKeyDriver = 'driver';
+const cacheOptionsEnvKeyName = 'name';
+const cacheOptionsEnvKeyTimeToLive = 'time_to_live';
+const cacheOptionsDebug = 'debug';
 
 export class LevelCache implements RemoteCache {
   private options: LevelCacheOptions;
@@ -56,7 +52,7 @@ export class LevelCache implements RemoteCache {
         debug(
           this.options.debug,
           LogType.log,
-          "cache-task-runner: Retrieving cache for ",
+          'cache-task-runner: Retrieving cache for ',
           hash
         );
         db.get(hash, async (err, base64Buffer) => {
@@ -64,7 +60,7 @@ export class LevelCache implements RemoteCache {
             debug(
               this.options.debug,
               LogType.error,
-              "cache-task-runner: Error while retrieving cache item ",
+              'cache-task-runner: Error while retrieving cache item ',
               err
             );
             resolve(false);
@@ -73,25 +69,25 @@ export class LevelCache implements RemoteCache {
               debug(
                 this.options.debug,
                 LogType.log,
-                "cache-task-runner: stored value",
+                'cache-task-runner: stored value',
                 base64Buffer,
                 cacheDirectory
               );
 
               const base64String = base64Buffer.toString();
 
-              const buffer = Buffer.from(base64String, "base64");
+              const buffer = Buffer.from(base64String, 'base64');
 
               await unarchiveIntoDir(buffer, cacheDirectory);
               fs.writeFileSync(
                 path.join(cacheDirectory, `${hash}.commit`),
-                "true"
+                'true'
               );
 
               debug(
                 this.options.debug,
                 LogType.log,
-                "cache-task-runner: Retrieved cache for ",
+                'cache-task-runner: Retrieved cache for ',
                 hash
               );
               resolve(true);
@@ -99,7 +95,7 @@ export class LevelCache implements RemoteCache {
               debug(
                 this.options.debug,
                 LogType.error,
-                "cache-task-runner: Error while retrieving cache item ",
+                'cache-task-runner: Error while retrieving cache item ',
                 e
               );
               resolve(false);
@@ -111,7 +107,7 @@ export class LevelCache implements RemoteCache {
               debug(
                 this.options.debug,
                 LogType.error,
-                "cache-task-runner: Error while closing db after retrieving cache item ",
+                'cache-task-runner: Error while closing db after retrieving cache item ',
                 err
               );
             }
@@ -121,7 +117,7 @@ export class LevelCache implements RemoteCache {
         debug(
           this.options.debug,
           LogType.error,
-          "cache-task-runner: Error while retrieving cache item ",
+          'cache-task-runner: Error while retrieving cache item ',
           e
         );
         resolve(false);
@@ -150,14 +146,14 @@ export class LevelCache implements RemoteCache {
 
       return new Promise((resolve, reject) => {
         try {
-          const base64Buffer = Buffer.from(buffer).toString("base64");
+          const base64Buffer = Buffer.from(buffer).toString('base64');
 
           db.put(hash, base64Buffer, async (err) => {
             if (err) {
               debug(
                 this.options.debug,
                 LogType.error,
-                "cache-task-runner: Error while storing cache item ",
+                'cache-task-runner: Error while storing cache item ',
                 err
               );
               resolve(false);
@@ -165,7 +161,7 @@ export class LevelCache implements RemoteCache {
               debug(
                 this.options.debug,
                 LogType.log,
-                "cache-task-runner: Storing Item with hash ",
+                'cache-task-runner: Storing Item with hash ',
                 hash
               );
               resolve(true);
@@ -175,7 +171,7 @@ export class LevelCache implements RemoteCache {
             if (
               this.options.time_to_live &&
               leveldownInstance.db &&
-              isFunction(leveldownInstance.db.expire)
+              typeof leveldownInstance.db.expire === 'function'
             ) {
               leveldownInstance.db.expire(
                 hash,
@@ -186,7 +182,7 @@ export class LevelCache implements RemoteCache {
                       debug(
                         this.options.debug,
                         LogType.error,
-                        "cache-task-runner: Error while closing db after storing cache item ",
+                        'cache-task-runner: Error while closing db after storing cache item ',
                         err
                       );
                     }
@@ -199,7 +195,7 @@ export class LevelCache implements RemoteCache {
                   debug(
                     this.options.debug,
                     LogType.error,
-                    "cache-task-runner: Error while closing db after storing cache item ",
+                    'cache-task-runner: Error while closing db after storing cache item ',
                     err
                   );
                 }
@@ -210,7 +206,7 @@ export class LevelCache implements RemoteCache {
           debug(
             this.options.debug,
             LogType.error,
-            "cache-task-runner: Error while storing cache item ",
+            'cache-task-runner: Error while storing cache item ',
             e
           );
           resolve(false);
@@ -220,7 +216,7 @@ export class LevelCache implements RemoteCache {
       debug(
         this.options.debug,
         LogType.error,
-        "cache-task-runner: Error while storing cache item ",
+        'cache-task-runner: Error while storing cache item ',
         e
       );
       return Promise.resolve(false);
@@ -230,8 +226,8 @@ export class LevelCache implements RemoteCache {
   private getDb(): { db: LevelUp; leveldownInstance: any } {
     try {
       const driver = this.getDriver();
-      const name = this.options.name || "cache-task-runner";
-      const leveldownInstance = isFunction(driver)
+      const name = this.options.name || 'cache-task-runner';
+      const leveldownInstance = typeof driver === 'function'
         ? driver(name, this.driverOptions)
         : driver;
       return leveldownInstance
@@ -244,7 +240,7 @@ export class LevelCache implements RemoteCache {
       debug(
         this.options.debug,
         LogType.error,
-        "cache-task-runner: Error while creating level db ",
+        'cache-task-runner: Error while creating level db ',
         e
       );
     }
@@ -252,7 +248,7 @@ export class LevelCache implements RemoteCache {
 
   private getDriverOptions(options: any) {
     options = options || {};
-    const finalOptions = clone(options);
+    const finalOptions = structuredClone(options);
 
     // we need to check if the environment has any parameters -- those take
     // priority over the passed options
@@ -275,8 +271,8 @@ export class LevelCache implements RemoteCache {
 
     // customize driver options based on driver.
     switch (options[cacheOptionsEnvKeyDriver]) {
-      case "redisdown":
-        finalOptions["ownClient"] = true;
+      case 'redisdown':
+        finalOptions['ownClient'] = true;
         break;
       default:
       // nothing

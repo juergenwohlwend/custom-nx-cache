@@ -1,7 +1,7 @@
-import { NxJsonConfiguration } from "@nrwl/devkit";
-import { TaskGraph, Task } from "@nrwl/devkit";
-import { Hasher } from "@nrwl/devkit";
-import { ProjectGraph } from "@nrwl/devkit";
+import { NxJsonConfiguration } from "@nx/devkit";
+import { TaskGraph, Task } from "@nx/devkit";
+import { Hasher } from "@nx/devkit";
+import { ProjectGraph } from "@nx/devkit";
 import { TaskOrchestrator } from "nx/src/tasks-runner/task-orchestrator";
 import { DaemonClient } from "nx/src/daemon/client/client";
 import { NxArgs } from "nx/src/utils/command-line-utils";

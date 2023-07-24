@@ -69,7 +69,6 @@ async function runAllTasks(
   performance.measure("nx-prep-work", "init-local", "task-graph-created");
   performance.measure(
     "graph-creation",
-    "command-execution-begins",
     "task-graph-created"
   );
 

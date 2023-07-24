@@ -2,6 +2,8 @@ import { RemoteCache } from '@nx/devkit';
 import fs from 'fs';
 import levelUp, { LevelUp } from 'levelup';
 import path from 'path';
+import clone from 'clone';
+
 
 import { unarchiveIntoDir, archiveFromDir } from './archive';
 
@@ -248,7 +250,7 @@ export class LevelCache implements RemoteCache {
 
   private getDriverOptions(options: any) {
     options = options || {};
-    const finalOptions = structuredClone(options);
+    const finalOptions = clone(options);
 
     // we need to check if the environment has any parameters -- those take
     // priority over the passed options

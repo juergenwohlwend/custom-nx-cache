@@ -1,16 +1,13 @@
-import { NxJsonConfiguration } from "@nx/devkit";
-import { TaskGraph, Task } from "@nx/devkit";
-import { Hasher } from "@nx/devkit";
-import { ProjectGraph } from "@nx/devkit";
-import { TaskOrchestrator } from "nx/src/tasks-runner/task-orchestrator";
-import { DaemonClient } from "nx/src/daemon/client/client";
-import { NxArgs } from "nx/src/utils/command-line-utils";
+import { NxJsonConfiguration, TaskHasher,  TaskGraph, Task, ProjectGraph } from '@nx/devkit';
+import { TaskOrchestrator } from 'nx/src/tasks-runner/task-orchestrator';
+import { DaemonClient } from 'nx/src/daemon/client/client';
+import { NxArgs } from 'nx/src/utils/command-line-utils';
 import {
   TasksRunner,
   TaskStatus,
-} from "@nx/workspace/src/tasks-runner/tasks-runner";
-import { DefaultTasksRunnerOptions } from "@nx/devkit";
-import { LevelCache } from "./level-cache";
+} from '@nx/workspace/src/tasks-runner/tasks-runner';
+import { DefaultTasksRunnerOptions } from '@nx/devkit';
+import { LevelCache } from './level-cache';
 
 export const defaultTasksRunner: TasksRunner<
   DefaultTasksRunnerOptions
@@ -24,23 +21,23 @@ export const defaultTasksRunner: TasksRunner<
     nxJson: NxJsonConfiguration;
     nxArgs: NxArgs;
     taskGraph: TaskGraph;
-    hasher: Hasher;
+    hasher: TaskHasher;
     daemon: DaemonClient;
   }
 ): Promise<{ [id: string]: TaskStatus }> => {
   options.remoteCache = new LevelCache(options.levelTaskRunnerOptions || {});
 
   if (
-    (options as any)["parallel"] === "false" ||
-    (options as any)["parallel"] === false
+    (options as any)['parallel'] === 'false' ||
+    (options as any)['parallel'] === false
   ) {
-    (options as any)["parallel"] = 1;
+    (options as any)['parallel'] = 1;
   } else if (
-    (options as any)["parallel"] === "true" ||
-    (options as any)["parallel"] === true ||
-    (options as any)["parallel"] === undefined
+    (options as any)['parallel'] === 'true' ||
+    (options as any)['parallel'] === true ||
+    (options as any)['parallel'] === undefined
   ) {
-    (options as any)["parallel"] = Number((options as any)["maxParallel"] || 3);
+    (options as any)['parallel'] = Number((options as any)['maxParallel'] || 3);
   }
 
   options.lifeCycle.startCommand();
@@ -60,18 +57,10 @@ async function runAllTasks(
     nxJson: NxJsonConfiguration;
     nxArgs: NxArgs;
     taskGraph: TaskGraph;
-    hasher: Hasher;
+    hasher: TaskHasher;
     daemon: DaemonClient;
   }
 ): Promise<{ [id: string]: TaskStatus }> {
-  performance.mark("task-graph-created");
-
-  performance.measure("nx-prep-work", "init-local", "task-graph-created");
-  performance.measure(
-    "graph-creation",
-    "task-graph-created"
-  );
-
   const orchestrator = new TaskOrchestrator(
     context.hasher,
     context.initiatingProject,

@@ -38,5 +38,7 @@ export async function unarchiveIntoDir(
 
     extract.on("error", reject);
     extract.on("close", resolve);
+
+    archiveStream.pipe(extract).on("entry", () => {});
   });
 }

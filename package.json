@@ -1,6 +1,6 @@
 {
   "name": "@darkterror45/custom-cache-task-runner",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "An nx task runner that caches all outputs to a given leveldown configuration",
   "main": "dist/index.js",
   "scripts": {

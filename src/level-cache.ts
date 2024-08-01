@@ -1,11 +1,10 @@
 import { RemoteCache } from '@nx/devkit';
+import clone from 'clone';
 import fs from 'fs';
 import levelUp, { LevelUp } from 'levelup';
 import path from 'path';
-import clone from 'clone';
 
-
-import { unarchiveIntoDir, archiveFromDir } from './archive';
+import { archiveFromDir, unarchiveIntoDir } from './archive';
 
 export interface LevelCacheOptions {
   driver?: string;
@@ -229,9 +228,10 @@ export class LevelCache implements RemoteCache {
     try {
       const driver = this.getDriver();
       const name = this.options.name || 'cache-task-runner';
-      const leveldownInstance = typeof driver === 'function'
-        ? driver(name, this.driverOptions)
-        : driver;
+      const leveldownInstance =
+        typeof driver === 'function'
+          ? driver(name, this.driverOptions)
+          : driver;
       return leveldownInstance
         ? {
             db: new levelUp(leveldownInstance, this.driverOptions as any),

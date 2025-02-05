@@ -73,9 +73,11 @@ async function runAllTasks(
     context.initiatingProject,
     context.projectGraph,
     context.taskGraph,
+    context.nxJson,
     options,
     context.nxArgs?.nxBail,
-    context.daemon
+    context.daemon,
+    ''
   );
 
   return orchestrator.run();
